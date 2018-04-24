@@ -12,7 +12,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/inconshreveable/go-update/internal/osext"
+	"github.com/SherifEldeeb/go-update/internal/osext"
 )
 
 var (
@@ -135,9 +135,11 @@ func Apply(update io.Reader, opts Options) error {
 	_ = os.Remove(oldPath)
 
 	// move the existing executable to a new file in the same directory
-	err = os.Rename(opts.TargetPath, oldPath)
-	if err != nil {
-		return err
+	if _, err := os.Stat(opts.TargetPath); !os.IsNotExist(err) {
+		err = os.Rename(opts.TargetPath, oldPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	// move the new exectuable in to become the new program
