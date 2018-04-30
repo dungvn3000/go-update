@@ -259,7 +259,7 @@ func TestVerifyECSignature(t *testing.T) {
 		t.Fatalf("Could not parse public key: %v", err)
 	}
 
-	opts.Signature = signec(ecdsaPrivateKey, newFile, t)
+	opts.Signature01 = signec(ecdsaPrivateKey, newFile, t)
 	err = Apply(bytes.NewReader(newFile), opts)
 	validateUpdate(fName, err, t)
 }
@@ -278,7 +278,7 @@ func TestVerifyRSASignature(t *testing.T) {
 		t.Fatalf("Could not parse public key: %v", err)
 	}
 
-	opts.Signature = signrsa(rsaPrivateKey, newFile, t)
+	opts.Signature01 = signrsa(rsaPrivateKey, newFile, t)
 	err = Apply(bytes.NewReader(newFile), opts)
 	validateUpdate(fName, err, t)
 }
@@ -289,8 +289,8 @@ func TestVerifyFailBadSignature(t *testing.T) {
 	writeOldFile(fName, t)
 
 	opts := Options{
-		TargetPath: fName,
-		Signature:  []byte{0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA},
+		TargetPath:  fName,
+		Signature01: []byte{0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA},
 	}
 	err := opts.SetPublicKeyPEM([]byte(ecdsaPublicKey))
 	if err != nil {
@@ -340,7 +340,7 @@ func TestVerifyFailWrongSignature(t *testing.T) {
 		t.Fatalf("Could not parse public key: %v", err)
 	}
 
-	opts.Signature = signec(wrongKey, newFile, t)
+	opts.Signature01 = signec(wrongKey, newFile, t)
 	err = Apply(bytes.NewReader(newFile), opts)
 	if err == nil {
 		t.Fatalf("Verified an update that was signed by an untrusted key!")
@@ -353,8 +353,8 @@ func TestSignatureButNoPublicKey(t *testing.T) {
 	writeOldFile(fName, t)
 
 	err := Apply(bytes.NewReader(newFile), Options{
-		TargetPath: fName,
-		Signature:  signec(ecdsaPrivateKey, newFile, t),
+		TargetPath:  fName,
+		Signature01: signec(ecdsaPrivateKey, newFile, t),
 	})
 	if err == nil {
 		t.Fatalf("Allowed an update with a signautre verification when no public key was specified!")

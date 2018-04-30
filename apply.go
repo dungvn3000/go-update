@@ -49,12 +49,12 @@ func Apply(update io.Reader, opts Options) error {
 	// validate
 	verify := false
 	switch {
-	case opts.Signature != nil && opts.PublicKey != nil:
+	case opts.Signature01 != nil && opts.PublicKey01 != nil && opts.Signature02 != nil && opts.PublicKey02 != nil:
 		// okay
 		verify = true
-	case opts.Signature != nil:
+	case opts.Signature01 != nil || opts.Signature02 != nil:
 		return errors.New("no public key to verify signature with")
-	case opts.PublicKey != nil:
+	case opts.PublicKey01 != nil || opts.PublicKey02 != nil:
 		return errors.New("No signature to verify with")
 	}
 
@@ -207,10 +207,12 @@ type Options struct {
 	Checksum []byte
 
 	// Public key to use for signature verification. If nil, no signature verification is done.
-	PublicKey crypto.PublicKey
+	PublicKey01 crypto.PublicKey
+	PublicKey02 crypto.PublicKey
 
-	// Signature to verify the updated file. If nil, no signature verification is done.
-	Signature []byte
+	// Signature01 to verify the updated file. If nil, no signature verification is done.
+	Signature01 []byte
+	Signature02 []byte
 
 	// Pluggable signature verification algorithm. If nil, ECDSA is used.
 	Verifier Verifier
@@ -265,7 +267,7 @@ func (o *Options) SetPublicKeyPEM(pembytes []byte) error {
 	if err != nil {
 		return err
 	}
-	o.PublicKey = pub
+	o.PublicKey01 = pub
 	return nil
 }
 
@@ -311,7 +313,17 @@ func (o *Options) verifySignature(updated []byte) error {
 	if err != nil {
 		return err
 	}
-	return o.Verifier.VerifySignature(checksum, o.Signature, o.Hash, o.PublicKey)
+
+	e1 := o.Verifier.VerifySignature(checksum, o.Signature01, o.Hash, o.PublicKey01)
+	if e1 != nil {
+		return e1
+	}
+
+	e2 := o.Verifier.VerifySignature(checksum, o.Signature02, o.Hash, o.PublicKey02)
+	if e2 != nil {
+		return e2
+	}
+	return nil
 }
 
 func checksumFor(h crypto.Hash, payload []byte) ([]byte, error) {
