@@ -1,5 +1,13 @@
 # go-update: Build self-updating Go programs [![godoc reference](https://godoc.org/github.com/SherifEldeeb/go-update?status.png)](https://godoc.org/github.com/SherifEldeeb/go-update)
 
+## ABOUT THIS FORK
+Forked from (https://github.com/inconshreveable/go-update) to be used in an internal project, with the following exceptions:
+- Using *two* public keys and signatures (instead of one)
+- Signing and hashing are mandatory, not optionally skipped if missing
+- Using RSA/SHA256 as defaults.
+
+*END OF ABOUT THIS FORK*
+
 Package update provides functionality to implement secure, self-updating Go programs (or other single-file targets)
 A program can update itself by replacing its executable file with a new version.
 
