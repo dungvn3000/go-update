@@ -101,8 +101,6 @@ func Apply(update io.Reader, opts Options) error {
 		if err = opts.verifySignature(newBytes); err != nil {
 			return err
 		}
-	} else {
-		return errors.New("crypto verification is not optional, you have to specify both keys ")
 	}
 
 	// get the directory the executable exists in
